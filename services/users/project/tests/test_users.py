@@ -8,6 +8,12 @@ from project.api.models import User
 
 from project.tests.base import BaseTestCase
 
+def add_user(username, email):
+    user = User(username=username, email=email)
+    db.session.add(user)
+    db.session.commit()
+    return user
+
 class TestUserService(BaseTestCase):
     """Tests for the User Service"""
 
@@ -89,15 +95,50 @@ class TestUserService(BaseTestCase):
 
     def test_single_user(self):
         """Ensure get single users behaves correctly"""
-        user = User(username='matan', email='matanbroner@gmail.com')
-        db.session.add(user)
-        db.session.commit()
+        user = add_user('matan', 'matanbroner@gmail.com')
         with self.client:
             response = self.client.get(f'/users/{user.id}')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertIn('matan', data['data']['username'])
             self.assertIn('matanbroner@gmail.com', data['data']['email'])
+            self.assertIn('success', data['status'])
+
+    def test_single_user_no_id(self):
+        """Ensure error is thrown if an id is not provided"""
+        with self.client:
+            response=self.client.get('/users/999')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('User does not exist.', data['message'])
+            self.assertIn('fail', data['status'])
+
+    def test_single_user_incorrect_id(self):
+        """Ensure error is thrown if the id does not exist"""
+        with self.client:
+            response = self.client.get('/users/999')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('User does not exist.', data['message'])
+            self.assertIn('fail', data['status'])
+    
+    def test_all_users(self):
+        """Ensure get all users behaves correctly"""
+        add_user('john', 'johnsmith@gmail.com')
+        add_user('henry', 'henrysmith@yahoo.com')
+        with self.client:
+            response = self.client.get('/users')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['data']['users']), 2)
+            self.assertIn('john', data['data']['users'][0]['username'])
+            self.assertIn(
+                'johnsmith@gmail.com', data['data']['users'][0]['email']
+            )
+            self.assertIn('henry', data['data']['users'][1]['username'])
+            self.assertIn(
+                'henrysmith@yahoo.com', data['data']['users'][1]['email']
+            )
             self.assertIn('success', data['status'])
 
 if __name__ == '__main__':
