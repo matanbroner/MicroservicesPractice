@@ -17,7 +17,6 @@ before_script:
 
 script:
   - docker-compose -f docker-compose-dev.yml exec users python manage.py test
-  - docker-compose -f docker-compose-dev.yml exec users flake8 project
 
 after_script:
   - docker-compose -f docker-compose-dev.yml down
