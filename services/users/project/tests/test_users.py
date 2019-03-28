@@ -5,15 +5,9 @@ import unittest
 
 from project import db
 from project.api.models import User
+from utils import add_user
 
 from project.tests.base import BaseTestCase
-
-
-def add_user(username, email):
-    user = User(username=username, email=email)
-    db.session.add(user)
-    db.session.commit()
-    return user
 
 
 class TestUserService(BaseTestCase):
