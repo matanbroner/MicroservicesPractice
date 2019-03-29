@@ -12,12 +12,12 @@ class BaseConfig:
     DEBUG_TB_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 
-
 class DevelopmentConfig(BaseConfig):
     """Development Configuration"""
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     DEBUG_TB_ENABLED = True
+    BCRYPT_LOG_ROUNDS = 4
 
 
 class TestingConfig(BaseConfig):
@@ -25,9 +25,10 @@ class TestingConfig(BaseConfig):
 
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_TEST_URL")
-
+    BCRYPT_LOG_ROUNDS = 4
 
 class ProductionConfig(BaseConfig):
     """Production Configuration"""
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    BCRYPT_LOG_ROUNDS = 13
